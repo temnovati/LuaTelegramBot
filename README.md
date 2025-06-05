@@ -11,6 +11,7 @@ This API was made by AI, don't hate me pls!!! :(
 - Simple command handling
 - Inline keyboard buttons
 - Message editing and deletion
+- File sending (photos, videos, audio, documents, etc.)
 - Easy to use API
 
 ## Installation
@@ -37,6 +38,15 @@ api.createcommand("start", function(message)
     api.send_message(message.chat.id, "Hello! I'm your bot!")
 end)
 
+-- Send a file
+api.createcommand("file", function(message)
+    api.send_file(
+        message.chat.id,
+        "path/to/your/file.jpg",
+        "This is a caption for the file"
+    )
+end)
+
 -- Add a button
 api.addbutton("Click me", "click", function(callback)
     api.removemessage(
@@ -56,12 +66,23 @@ api.run()
 - `api.send_message(chat_id, text)` - Send a message
 - `api.editmessage(chat_id, message_id, new_text)` - Edit a message
 - `api.removemessage(chat_id, message_id)` - Delete a message
+- `api.send_file(chat_id, file_path, caption)` - Send any type of file
 
 ### Button Functions
 - `api.addbutton(text, callback_data, callback)` - Add a button
 - `api.removebutton(callback_data)` - Remove a button
 - `api.editbutton(old_callback_data, new_text, new_callback_data, new_callback)` - Edit a button
 - `api.clearbuttons()` - Clear all buttons
+
+## Supported File Types
+
+The `send_file` function automatically detects file type and uses appropriate Telegram API method:
+
+- Photos: jpg, jpeg, png
+- Videos: mp4, mov
+- Audio: mp3, ogg, wav
+- Animations: gif
+- Documents: all other file types
 
 ## Example Bot
 
@@ -70,6 +91,7 @@ Check out the `bot.lua` file for a complete example of a bot with:
 - Different types of buttons
 - Message deletion
 - Message editing
+- File sending
 
 ## Running the Example
 
@@ -81,5 +103,3 @@ Check out the `bot.lua` file for a complete example of a bot with:
 cd TBL
 lua bot.lua
 ```
-
-
