@@ -76,14 +76,15 @@ Check out the `bot.lua` file for a complete example of a bot with:
 3. Edit `bot.lua` and set your bot token
 4. Run the bot:
 ```bash
-cd TBL
-lua bot.lua
+cd "file"
+lua "file_name".lua
 ```
 
-## License
-
-MIT License
 
 ## Contributing
 
 Feel free to submit issues and pull requests!
+
+## Warning
+
+this api made by ai, dont hate me pls!!! :(
