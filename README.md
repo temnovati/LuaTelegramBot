@@ -2,12 +2,15 @@
 
 A simple and lightweight Telegram Bot API wrapper for Lua. This library provides an easy way to create Telegram bots with features like buttons, commands, and message handling.
 
+## Warning
+
+This API was made by AI, don't hate me pls!!! :(
+
 ## Features
 
 - Simple command handling
 - Inline keyboard buttons
-- Button effects (remove and reappear)
-- Message editing
+- Message editing and deletion
 - Easy to use API
 
 ## Installation
@@ -36,10 +39,9 @@ end)
 
 -- Add a button
 api.addbutton("Click me", "click", function(callback)
-    api.editmessage(
+    api.removemessage(
         callback.message.chat.id,
-        callback.message.message_id,
-        "Button clicked!"
+        callback.message.message_id
     )
 end)
 
@@ -53,10 +55,10 @@ api.run()
 - `api.createcommand(name, callback)` - Create a new command
 - `api.send_message(chat_id, text)` - Send a message
 - `api.editmessage(chat_id, message_id, new_text)` - Edit a message
+- `api.removemessage(chat_id, message_id)` - Delete a message
 
 ### Button Functions
-- `api.addbutton(text, callback_data, callback)` - Add a regular button
-- `api.addbutton_with_effect(text, callback_data, callback)` - Add a button with remove/reappear effect
+- `api.addbutton(text, callback_data, callback)` - Add a button
 - `api.removebutton(callback_data)` - Remove a button
 - `api.editbutton(old_callback_data, new_text, new_callback_data, new_callback)` - Edit a button
 - `api.clearbuttons()` - Clear all buttons
@@ -66,7 +68,7 @@ api.run()
 Check out the `bot.lua` file for a complete example of a bot with:
 - Multiple commands
 - Different types of buttons
-- Button effects
+- Message deletion
 - Message editing
 
 ## Running the Example
@@ -76,15 +78,8 @@ Check out the `bot.lua` file for a complete example of a bot with:
 3. Edit `bot.lua` and set your bot token
 4. Run the bot:
 ```bash
-cd "file"
-lua "file_name".lua
+cd TBL
+lua bot.lua
 ```
 
 
-## Contributing
-
-Feel free to submit issues and pull requests!
-
-## Warning
-
-this api made by ai, dont hate me pls!!! :(
