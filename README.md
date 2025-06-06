@@ -93,6 +93,3 @@ lua bot.lua
 > [!IMPORTANT]
 > My discord: seniorsword
 
-> [!WARNING]
-> This API was made by AI, don't hate me pls!!! 😅
-> 
