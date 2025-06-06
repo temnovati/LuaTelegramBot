@@ -5,11 +5,12 @@ A simple and lightweight Telegram Bot API wrapper for Lua. This library provides
 ## Features
 
 - Simple command handling
-- Inline keyboard buttons
+- Inline keyboard buttons with URL support
 - Message editing and deletion
 - File sending (photos, videos, audio, documents, archives, etc.)
 - Chat history tracking
 - User tracking
+- Popup notifications
 - Easy to use API
 
 ## Installation
@@ -31,34 +32,18 @@ local api = require('telegramapi')
 -- Set bot token
 api.token = "YOUR_TOKEN"
 
--- Example usage
+-- Start command
 api.createcommand("start", function(message)
-    -- First add button
-    api.clearbuttons() -- Clear old buttons
-    api.addbutton("'sus button'", "button1", function(callback)
-        
-        api.removebutton("button1")
-
-        api.editmessage(
-            callback.message.chat.id,
-            callback.message.message_id,
-            "i know your name."
-        )
-
-        os.execute("sleep " .. tostring(1))
-
-        api.editmessage(
-            callback.message.chat.id,
-            callback.message.message_id,
-            callback.from.first_name..". Right?"
-        )
+    -- Добавляем кнопку с URL
+    api.addbutton("YouTube", nil, nil, "https://www.youtube.com/@Temno69")
+    
+    -- Добавляем кнопку с popup
+    api.addbutton("Нажми меня", "show_popup", function(callback)
+        api.show_popup(callback.id, "Привет, " .. message.from.first_name .. "!", true)
     end)
-
-    -- Then send message with button
-    api.send_message(
-        message.chat.id,
-        "Hello i'm cool bot!!! press this button"
-    )
+    
+    -- Отправляем сообщение с кнопками
+    api.send_message(message.chat.id, "Мой ютуб")
 end)
 
 -- Run bot
@@ -72,10 +57,15 @@ api.run()
 - `api.send_message(chat_id, text)` - Send a message
 - `api.editmessage(chat_id, message_id, new_text)` - Edit a message
 - `api.removemessage(chat_id, message_id)` - Delete a message
-- `api.send_file(chat_id, file_path, caption)` - Send any type of file (photos, videos, audio, documents, archives)
+- `api.send_file(chat_id, file_path, caption)` - Send any type of file
+- `api.show_popup(callback_query_id, text, show_alert)` - Show popup notification
 
 ### Button Functions
-- `api.addbutton(text, callback_data, callback)` - Add a button
+- `api.addbutton(text, callback_data, callback, url)` - Add a button
+  - `text` - Button text
+  - `callback_data` - Unique identifier (nil if using URL)
+  - `callback` - Function to call when pressed (nil if using URL)
+  - `url` - URL to open when pressed (optional)
 - `api.removebutton(callback_data)` - Remove a button
 - `api.editbutton(old_callback_data, new_text, new_callback_data, new_callback)` - Edit a button
 - `api.clearbuttons()` - Clear all buttons
@@ -89,8 +79,8 @@ api.run()
 
 Check out the `bot.lua` file for a complete example of a bot with:
 - Multiple commands
-- Different types of buttons
-- Message deletion
+- Different types of buttons (URL and callback)
+- Popup notifications
 - Message editing
 - File sending
 - Chat history tracking
@@ -107,9 +97,9 @@ cd TBL
 lua bot.lua
 ```
 
-
 > [!IMPORTANT]
 > My discord: seniorsword
 
 > [!WARNING]
 > This API was made by AI, don't hate me pls!!! 😅
+> 
