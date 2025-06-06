@@ -30,24 +30,40 @@ luarocks install lua-cjson
 ```lua
 local api = require('telegramapi')
 
--- Set your bot token
-api.token = 'YOUR_BOT_TOKEN'
+-- Set bot token
+api.token = "8135074733:AAFwYRO4XpyjfPtmJwA066YJgcYTv6bm5HQ"
 
--- Create a command
+-- Example usage
 api.createcommand("start", function(message)
-    api.send_message(message.chat.id, "Hello! I'm your bot!")
-end)
+    -- First add button
+    api.clearbuttons() -- Clear old buttons
+    api.addbutton("'sus button'", "button1", function(callback)
+        
+        api.removebutton("button1")
 
--- Add a button
-api.addbutton("Click me", "click", function(callback)
-    api.send_photo(
-        callback.message.chat.id,
-        "photo.jpg",
-        "Cool photo!"
+        api.editmessage(
+            callback.message.chat.id,
+            callback.message.message_id,
+            "i know your name."
+        )
+
+        os.execute("sleep " .. tostring(1))
+
+        api.editmessage(
+            callback.message.chat.id,
+            callback.message.message_id,
+            callback.from.first_name..". Right?"
+        )
+    end)
+
+    -- Then send message with button
+    api.send_message(
+        message.chat.id,
+        "Hello i'm cool bot!!! press this button"
     )
 end)
 
--- Run the bot
+-- Run bot
 api.run()
 ```
 
