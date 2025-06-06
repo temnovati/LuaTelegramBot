@@ -28,13 +28,21 @@ function api.createcommand(name, callback)
 end
 
 -- Add button
-function api.addbutton(text, callback_data, callback)
-    table.insert(api.buttons, {
-        text = text,
-        callback_data = callback_data
-    })
-    api.callbacks[callback_data] = callback
-    print("Button created: " .. text)
+function api.addbutton(text, callback_data, callback, url)
+    local button = {
+        text = text
+    }
+    
+    if url then
+        button.url = url
+    else
+        button.callback_data = callback_data
+        api.callbacks[callback_data] = callback
+    end
+    
+    if not api.buttons then api.buttons = {} end
+    table.insert(api.buttons, button)
+    print("Button created: " .. text .. (url and " with URL" or ""))
 end
 
 -- Remove button by callback_data
@@ -70,24 +78,6 @@ function api.clearbuttons()
     print("All buttons cleared")
 end
 
--- Create keyboard
-function api.create_keyboard()
-    local keyboard = {
-        inline_keyboard = {}
-    }
-    
-    -- Add all buttons in one row
-    local row = {}
-    for _, button in ipairs(api.buttons) do
-        table.insert(row, {
-            text = button.text,
-            callback_data = button.callback_data
-        })
-    end
-    table.insert(keyboard.inline_keyboard, row)
-    
-    return json.encode(keyboard)
-end
 
 -- Send HTTP request
 function api.request(method, params)
@@ -113,26 +103,24 @@ function api.request(method, params)
     return nil
 end
 
--- Send message
+-- Send message with buttons
 function api.send_message(chat_id, text)
     local params = {
         chat_id = chat_id,
         text = text
     }
     
-    -- Add keyboard if there are buttons
-    if #api.buttons > 0 then
-        params.reply_markup = api.create_keyboard()
+    if api.buttons and #api.buttons > 0 then
+        params.reply_markup = {
+            inline_keyboard = {api.buttons}
+        }
+        api.buttons = {} -- Очищаем кнопки после отправки
     end
     
-    local response = api.request("sendMessage", params)
-    if response and response.ok then
-        return response.result
-    end
-    return nil
+    return api.request("sendMessage", params)
 end
 
--- Edit message
+-- Edit message with buttons
 function api.editmessage(chat_id, message_id, new_text)
     local params = {
         chat_id = chat_id,
@@ -140,9 +128,11 @@ function api.editmessage(chat_id, message_id, new_text)
         text = new_text
     }
     
-    -- Add keyboard if there are buttons
-    if #api.buttons > 0 then
-        params.reply_markup = api.create_keyboard()
+    if api.buttons and #api.buttons > 0 then
+        params.reply_markup = {
+            inline_keyboard = {api.buttons}
+        }
+        api.buttons = {} -- Очищаем кнопки после отправки
     end
     
     return api.request("editMessageText", params)
@@ -289,45 +279,6 @@ function api.send_file(chat_id, file_path, caption)
     return nil, "Failed to send file"
 end
 
--- Get all messages from chat
-function api.get_chat_messages(chat_id)
-    local params = {
-        chat_id = chat_id,
-        limit = 100 -- максимальное количество сообщений за один запрос
-    }
-    
-    local url = api.base_url .. api.token .. "/getUpdates"
-    local response = {}
-    
-    local res, code = http.request{
-        url = url,
-        method = "GET",
-        headers = {
-            ["Content-Type"] = "application/json"
-        },
-        sink = ltn12.sink.table(response)
-    }
-    
-    if code == 200 then
-        local data = json.decode(table.concat(response))
-        if data.ok then
-            local messages = {}
-            for _, update in ipairs(data.result) do
-                if update.message and update.message.chat.id == chat_id then
-                    table.insert(messages, {
-                        message_id = update.message.message_id,
-                        text = update.message.text,
-                        date = update.message.date,
-                        from = update.message.from
-                    })
-                end
-            end
-            return messages
-        end
-    end
-    return nil, "Failed to get messages"
-end
-
 -- Get all data from chat (messages and users)
 function api.getdatafromchat(chat_id)
     local result = {
@@ -359,6 +310,16 @@ function api.getdatafromchat(chat_id)
     end
     
     return result
+end
+
+-- Show popup notification
+function api.show_popup(callback_query_id, text, show_alert)
+    local params = {
+        callback_query_id = callback_query_id,
+        text = text,
+        show_alert = show_alert == nil and true or show_alert
+    }
+    return api.request("answerCallbackQuery", params)
 end
 
 -- Run bot
