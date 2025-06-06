@@ -78,7 +78,6 @@ function api.clearbuttons()
     print("All buttons cleared")
 end
 
-
 -- Send HTTP request
 function api.request(method, params)
     local url = api.base_url .. api.token .. "/" .. method
@@ -114,7 +113,7 @@ function api.send_message(chat_id, text)
         params.reply_markup = {
             inline_keyboard = {api.buttons}
         }
-        api.buttons = {} -- Очищаем кнопки после отправки
+        api.buttons = {} -- Clear buttons after sending
     end
     
     return api.request("sendMessage", params)
@@ -132,7 +131,7 @@ function api.editmessage(chat_id, message_id, new_text)
         params.reply_markup = {
             inline_keyboard = {api.buttons}
         }
-        api.buttons = {} -- Очищаем кнопки после отправки
+        api.buttons = {} -- Clear buttons after sending
     end
     
     return api.request("editMessageText", params)
@@ -152,7 +151,7 @@ end
 
 -- Handle messages
 function api.on_message(message)
-    -- Обрабатываем все сообщения, а не только команды
+    -- Process all messages, not just commands
     if message.text then
         local command = message.text:match('^/(%w+)')
         if command and api.commands[command] then
@@ -160,7 +159,7 @@ function api.on_message(message)
         end
     end
     
-    -- Добавляем сообщение в историю
+    -- Add message to history
     if not api.message_history then
         api.message_history = {}
     end
@@ -279,6 +278,16 @@ function api.send_file(chat_id, file_path, caption)
     return nil, "Failed to send file"
 end
 
+-- Show popup notification
+function api.show_popup(callback_query_id, text, show_alert)
+    local params = {
+        callback_query_id = callback_query_id,
+        text = text,
+        show_alert = show_alert == nil and true or show_alert
+    }
+    return api.request("answerCallbackQuery", params)
+end
+
 -- Get all data from chat (messages and users)
 function api.getdatafromchat(chat_id)
     local result = {
@@ -286,15 +295,15 @@ function api.getdatafromchat(chat_id)
         allusers = {}
     }
     
-    -- Создаем таблицу для отслеживания уникальных пользователей
+    -- Create table for tracking unique users
     local unique_users = {}
     
-    -- Используем сохраненную историю сообщений
+    -- Use saved message history
     if api.message_history and api.message_history[chat_id] then
         for message_id, msg in pairs(api.message_history[chat_id]) do
             result.allmessages[message_id] = msg
             
-            -- Добавляем пользователя, если его еще нет
+            -- Add user if not exists
             if msg.from then
                 local user_id = msg.from.id
                 if not unique_users[user_id] then
@@ -310,16 +319,6 @@ function api.getdatafromchat(chat_id)
     end
     
     return result
-end
-
--- Show popup notification
-function api.show_popup(callback_query_id, text, show_alert)
-    local params = {
-        callback_query_id = callback_query_id,
-        text = text,
-        show_alert = show_alert == nil and true or show_alert
-    }
-    return api.request("answerCallbackQuery", params)
 end
 
 -- Run bot
