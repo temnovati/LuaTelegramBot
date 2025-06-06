@@ -41,9 +41,6 @@ end)
 
 -- Run bot
 api.run()
-
--- Run bot
-api.run()
 ```
 
 ## Available Functions
