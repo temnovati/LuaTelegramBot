@@ -31,7 +31,7 @@ luarocks install lua-cjson
 local api = require('telegramapi')
 
 -- Set bot token
-api.token = "8135074733:AAFwYRO4XpyjfPtmJwA066YJgcYTv6bm5HQ"
+api.token = "YOUR_TOKEN"
 
 -- Example usage
 api.createcommand("start", function(message)
