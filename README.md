@@ -2,10 +2,6 @@
 
 A simple and lightweight Telegram Bot API wrapper for Lua. This library provides an easy way to create Telegram bots with features like buttons, commands, and message handling.
 
-## ⚠️ Warning
-
-This API was made by AI, don't hate me pls!!! 😅
-
 ## Features
 
 - Simple command handling
@@ -106,10 +102,5 @@ cd TBL
 lua bot.lua
 ```
 
-## License
-
-MIT License
-
-## Contributing
-
-Feel free to submit issues and pull requests!
+> [!WARNING]
+> This API was made by AI, don't hate me pls!!! 😅
