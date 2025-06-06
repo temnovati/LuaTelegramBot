@@ -7,7 +7,7 @@ A simple and lightweight Telegram Bot API wrapper for Lua. This library provides
 - Simple command handling
 - Inline keyboard buttons
 - Message editing and deletion
-- File sending (photos, videos, audio, documents, etc.)
+- File sending (photos, videos, audio, documents, archives, etc.)
 - Easy to use API
 
 ## Installation
@@ -70,11 +70,7 @@ api.run()
 - `api.send_message(chat_id, text)` - Send a message
 - `api.editmessage(chat_id, message_id, new_text)` - Edit a message
 - `api.removemessage(chat_id, message_id)` - Delete a message
-- `api.send_photo(chat_id, file_path, caption)` - Send a photo ( png, jpg, jpeg )
-- `api.send_video(chat_id, file_path, caption)` - Send a video ( mp4, mov )
-- `api.send_audio(chat_id, file_path, caption)` - Send audio ( mp3, ogg, wav )
-- `api.send_document(chat_id, file_path, caption)` - Send a document
-- `api.send_animation(chat_id, file_path, caption)` - Send a GIF
+- `api.send_file(chat_id, file_path, caption)` - Send any type of file (photos, videos, audio, documents, archives)
 
 ### Button Functions
 - `api.addbutton(text, callback_data, callback)` - Add a button
@@ -98,11 +94,17 @@ Check out the `bot.lua` file for a complete example of a bot with:
 3. Edit `bot.lua` and set your bot token
 4. Run the bot:
 ```bash
-cd TBL
-lua bot.lua
+cd "folder_name"
+lua "file_name".lua
 ```
-
-
 
 > [!WARNING]
 > This API was made by AI, don't hate me pls!!! 😅
+
+## License
+
+MIT License
+
+## Contributing
+
+Feel free to submit issues and pull requests! 
