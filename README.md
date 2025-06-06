@@ -25,7 +25,7 @@ luarocks install lua-cjson
 
 2. Copy the `telegramapi.lua` file to your project.
 
-## Quick Start
+## Example
 
 ```lua
 local api = require('telegramapi')
