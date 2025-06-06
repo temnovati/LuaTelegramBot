@@ -125,7 +125,11 @@ function api.send_message(chat_id, text)
         params.reply_markup = api.create_keyboard()
     end
     
-    return api.request("sendMessage", params)
+    local response = api.request("sendMessage", params)
+    if response and response.ok then
+        return response.result
+    end
+    return nil
 end
 
 -- Edit message
@@ -158,11 +162,29 @@ end
 
 -- Handle messages
 function api.on_message(message)
+    -- Обрабатываем все сообщения, а не только команды
     if message.text then
         local command = message.text:match('^/(%w+)')
         if command and api.commands[command] then
             api.commands[command](message)
         end
+    end
+    
+    -- Добавляем сообщение в историю
+    if not api.message_history then
+        api.message_history = {}
+    end
+    
+    if message.chat then
+        if not api.message_history[message.chat.id] then
+            api.message_history[message.chat.id] = {}
+        end
+        
+        api.message_history[message.chat.id][message.message_id] = {
+            text = message.text,
+            date = message.date,
+            from = message.from
+        }
     end
 end
 
@@ -265,6 +287,78 @@ function api.send_file(chat_id, file_path, caption)
         return json.decode(table.concat(response))
     end
     return nil, "Failed to send file"
+end
+
+-- Get all messages from chat
+function api.get_chat_messages(chat_id)
+    local params = {
+        chat_id = chat_id,
+        limit = 100 -- максимальное количество сообщений за один запрос
+    }
+    
+    local url = api.base_url .. api.token .. "/getUpdates"
+    local response = {}
+    
+    local res, code = http.request{
+        url = url,
+        method = "GET",
+        headers = {
+            ["Content-Type"] = "application/json"
+        },
+        sink = ltn12.sink.table(response)
+    }
+    
+    if code == 200 then
+        local data = json.decode(table.concat(response))
+        if data.ok then
+            local messages = {}
+            for _, update in ipairs(data.result) do
+                if update.message and update.message.chat.id == chat_id then
+                    table.insert(messages, {
+                        message_id = update.message.message_id,
+                        text = update.message.text,
+                        date = update.message.date,
+                        from = update.message.from
+                    })
+                end
+            end
+            return messages
+        end
+    end
+    return nil, "Failed to get messages"
+end
+
+-- Get all data from chat (messages and users)
+function api.getdatafromchat(chat_id)
+    local result = {
+        allmessages = {},
+        allusers = {}
+    }
+    
+    -- Создаем таблицу для отслеживания уникальных пользователей
+    local unique_users = {}
+    
+    -- Используем сохраненную историю сообщений
+    if api.message_history and api.message_history[chat_id] then
+        for message_id, msg in pairs(api.message_history[chat_id]) do
+            result.allmessages[message_id] = msg
+            
+            -- Добавляем пользователя, если его еще нет
+            if msg.from then
+                local user_id = msg.from.id
+                if not unique_users[user_id] then
+                    unique_users[user_id] = true
+                    result.allusers[user_id] = {
+                        first_name = msg.from.first_name,
+                        last_name = msg.from.last_name,
+                        username = msg.from.username
+                    }
+                end
+            end
+        end
+    end
+    
+    return result
 end
 
 -- Run bot
