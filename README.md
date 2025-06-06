@@ -8,6 +8,8 @@ A simple and lightweight Telegram Bot API wrapper for Lua. This library provides
 - Inline keyboard buttons
 - Message editing and deletion
 - File sending (photos, videos, audio, documents, archives, etc.)
+- Chat history tracking
+- User tracking
 - Easy to use API
 
 ## Installation
@@ -78,6 +80,11 @@ api.run()
 - `api.editbutton(old_callback_data, new_text, new_callback_data, new_callback)` - Edit a button
 - `api.clearbuttons()` - Clear all buttons
 
+### Chat Data Functions
+- `api.getdatafromchat(chat_id)` - Get all chat data including:
+  - `allmessages` - Table of all messages with message_id as key
+  - `allusers` - Table of all users with user_id as key
+
 ## Example Bot
 
 Check out the `bot.lua` file for a complete example of a bot with:
@@ -86,6 +93,8 @@ Check out the `bot.lua` file for a complete example of a bot with:
 - Message deletion
 - Message editing
 - File sending
+- Chat history tracking
+- User tracking
 
 ## Running the Example
 
@@ -94,14 +103,12 @@ Check out the `bot.lua` file for a complete example of a bot with:
 3. Edit `bot.lua` and set your bot token
 4. Run the bot:
 ```bash
-cd "folder_name"
-lua "file_name".lua
+cd TBL
+lua bot.lua
 ```
 
+
+> [!IMPORTANT]
+> My discord: seniorsword
 > [!WARNING]
 > This API was made by AI, don't hate me pls!!! 😅
-
-
-## Contributing
-
-Feel free to submit issues and pull requests! 
