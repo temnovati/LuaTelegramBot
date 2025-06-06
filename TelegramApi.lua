@@ -183,17 +183,17 @@ function api.removemessage(chat_id, message_id)
     return api.request("deleteMessage", params)
 end
 
--- Send file
+-- Send file (universal function for all file types)
 function api.send_file(chat_id, file_path, caption)
     local params = {
         chat_id = chat_id
     }
     
-    -- Определяем тип файла по расширению
+    -- Determine file type by extension
     local file_type = file_path:match("%.([^%.]+)$"):lower()
     
-    -- Выбираем метод API в зависимости от типа файла
-    local method = "sendDocument" -- по умолчанию как документ
+    -- Choose API method based on file type
+    local method = "sendDocument" -- default as document
     
     if file_type == "jpg" or file_type == "jpeg" or file_type == "png" then
         method = "sendPhoto"
@@ -203,27 +203,68 @@ function api.send_file(chat_id, file_path, caption)
         method = "sendAudio"
     elseif file_type == "gif" then
         method = "sendAnimation"
+    elseif file_type == "zip" or file_type == "rar" then
+        method = "sendDocument"
+        -- Add file type to caption for archives
+        if caption then
+            caption = caption .. " (Archive: " .. file_type:upper() .. ")"
+        else
+            caption = "Archive: " .. file_type:upper()
+        end
     end
     
-    -- Добавляем caption если есть
+    -- Add caption if provided
     if caption then
         params.caption = caption
     end
     
-    -- Открываем файл
+    -- Open file
     local file = io.open(file_path, "rb")
     if not file then
         return nil, "File not found"
     end
     
-    -- Читаем содержимое файла
+    -- Read file content
     local content = file:read("*all")
     file:close()
     
-    -- Добавляем файл в параметры
-    params[method:match("send(%w+)"):lower()] = content
+    -- Create multipart/form-data request
+    local boundary = "----WebKitFormBoundary" .. os.time()
+    local body = ""
     
-    return api.request(method, params)
+    -- Add parameters
+    for k, v in pairs(params) do
+        body = body .. "--" .. boundary .. "\r\n"
+        body = body .. "Content-Disposition: form-data; name=\"" .. k .. "\"\r\n\r\n"
+        body = body .. v .. "\r\n"
+    end
+    
+    -- Add file
+    body = body .. "--" .. boundary .. "\r\n"
+    body = body .. "Content-Disposition: form-data; name=\"" .. method:match("send(%w+)"):lower() .. "\"; filename=\"" .. file_path:match("([^/\\]+)$") .. "\"\r\n"
+    body = body .. "Content-Type: " .. (method == "sendPhoto" and "image/jpeg" or "application/octet-stream") .. "\r\n\r\n"
+    body = body .. content .. "\r\n"
+    body = body .. "--" .. boundary .. "--\r\n"
+    
+    -- Send request
+    local url = api.base_url .. api.token .. "/" .. method
+    local response = {}
+    
+    local res, code = http.request{
+        url = url,
+        method = "POST",
+        headers = {
+            ["Content-Type"] = "multipart/form-data; boundary=" .. boundary,
+            ["Content-Length"] = #body
+        },
+        source = ltn12.source.string(body),
+        sink = ltn12.sink.table(response)
+    }
+    
+    if code == 200 then
+        return json.decode(table.concat(response))
+    end
+    return nil, "Failed to send file"
 end
 
 -- Send photo
