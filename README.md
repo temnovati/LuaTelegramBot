@@ -34,17 +34,13 @@ api.token = "YOUR_TOKEN"
 
 -- Start command
 api.createcommand("start", function(message)
-    -- Добавляем кнопку с URL
-    api.addbutton("YouTube", nil, nil, "https://www.youtube.com/@Temno69")
-    
-    -- Добавляем кнопку с popup
-    api.addbutton("Нажми меня", "show_popup", function(callback)
-        api.show_popup(callback.id, "Привет, " .. message.from.first_name .. "!", true)
-    end)
-    
-    -- Отправляем сообщение с кнопками
-    api.send_message(message.chat.id, "Мой ютуб")
+    api.addbutton("Be sigma", "button1", nil, "https://ru.pinterest.com/pin/940407965937376362/")
+
+    api.send_message(message.chat.id, "menu")
 end)
+
+-- Run bot
+api.run()
 
 -- Run bot
 api.run()
