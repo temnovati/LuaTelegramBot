@@ -101,9 +101,6 @@ lua "file_name".lua
 > [!WARNING]
 > This API was made by AI, don't hate me pls!!! 😅
 
-## License
-
-MIT License
 
 ## Contributing
 
