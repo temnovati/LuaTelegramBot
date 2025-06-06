@@ -2,9 +2,9 @@
 
 A simple and lightweight Telegram Bot API wrapper for Lua. This library provides an easy way to create Telegram bots with features like buttons, commands, and message handling.
 
-## Warning
+## ⚠️ Warning
 
-This API was made by AI, don't hate me pls!!! :(
+This API was made by AI, don't hate me pls!!! 😅
 
 ## Features
 
@@ -38,20 +38,12 @@ api.createcommand("start", function(message)
     api.send_message(message.chat.id, "Hello! I'm your bot!")
 end)
 
--- Send a file
-api.createcommand("file", function(message)
-    api.send_file(
-        message.chat.id,
-        "path/to/your/file.jpg",
-        "This is a caption for the file"
-    )
-end)
-
 -- Add a button
 api.addbutton("Click me", "click", function(callback)
-    api.removemessage(
+    api.send_photo(
         callback.message.chat.id,
-        callback.message.message_id
+        "photo.jpg",
+        "Cool photo!"
     )
 end)
 
@@ -66,23 +58,17 @@ api.run()
 - `api.send_message(chat_id, text)` - Send a message
 - `api.editmessage(chat_id, message_id, new_text)` - Edit a message
 - `api.removemessage(chat_id, message_id)` - Delete a message
-- `api.send_file(chat_id, file_path, caption)` - Send any type of file
+- `api.send_photo(chat_id, file_path, caption)` - Send a photo
+- `api.send_video(chat_id, file_path, caption)` - Send a video
+- `api.send_audio(chat_id, file_path, caption)` - Send audio
+- `api.send_document(chat_id, file_path, caption)` - Send a document
+- `api.send_animation(chat_id, file_path, caption)` - Send a GIF
 
 ### Button Functions
 - `api.addbutton(text, callback_data, callback)` - Add a button
 - `api.removebutton(callback_data)` - Remove a button
 - `api.editbutton(old_callback_data, new_text, new_callback_data, new_callback)` - Edit a button
 - `api.clearbuttons()` - Clear all buttons
-
-## Supported File Types
-
-The `send_file` function automatically detects file type and uses appropriate Telegram API method:
-
-- Photos: jpg, jpeg, png
-- Videos: mp4, mov
-- Audio: mp3, ogg, wav
-- Animations: gif
-- Documents: all other file types
 
 ## Example Bot
 
@@ -103,3 +89,11 @@ Check out the `bot.lua` file for a complete example of a bot with:
 cd TBL
 lua bot.lua
 ```
+
+## License
+
+MIT License
+
+## Contributing
+
+Feel free to submit issues and pull requests!
