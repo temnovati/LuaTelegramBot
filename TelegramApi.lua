@@ -2,10 +2,19 @@ local http = require("socket.http")
 local json = require("dkjson")
 local ltn12 = require("ltn12")
 
--- install: local api = require('telegramapi')
+--[[
+Installation:
+luarocks install luasocket
+luarocks install dkjson
+luarocks install lua-cjson
+
+Usage:
+local api = require('telegramapi')
+api.token = 'YOUR_BOT_TOKEN' -- Set your token here
+--]]
 
 local api = {
-    token = '8135074733:AAGMAvoNEdB-G8ggmRVrYKsvuzWIw7-uNe8',
+    token = nil, -- Token needs to be set before use
     commands = {},
     callbacks = {},
     buttons = {},
@@ -164,25 +173,204 @@ function api.on_callback_query(callback_query)
     end
 end
 
--- Add button with effect
-function api.addbutton_with_effect(text, callback_data, callback)
-    -- Add button
-    api.addbutton(text, callback_data, function(callback_query)
-        -- Call main callback
-        callback(callback_query)
-        
-        -- Remove button
-        api.removebutton(callback_data)
-        
-        -- Add button again
-        api.addbutton(text, callback_data, function(callback_query)
-            callback(callback_query)
-            api.removebutton(callback_data)
-            api.addbutton(text, callback_data, function(callback_query)
-                callback(callback_query)
-            end)
-        end)
-    end)
+-- Remove message
+function api.removemessage(chat_id, message_id)
+    local params = {
+        chat_id = chat_id,
+        message_id = message_id
+    }
+    
+    return api.request("deleteMessage", params)
+end
+
+-- Send file
+function api.send_file(chat_id, file_path, caption)
+    local params = {
+        chat_id = chat_id
+    }
+    
+    -- Определяем тип файла по расширению
+    local file_type = file_path:match("%.([^%.]+)$"):lower()
+    
+    -- Выбираем метод API в зависимости от типа файла
+    local method = "sendDocument" -- по умолчанию как документ
+    
+    if file_type == "jpg" or file_type == "jpeg" or file_type == "png" then
+        method = "sendPhoto"
+    elseif file_type == "mp4" or file_type == "mov" then
+        method = "sendVideo"
+    elseif file_type == "mp3" or file_type == "ogg" or file_type == "wav" then
+        method = "sendAudio"
+    elseif file_type == "gif" then
+        method = "sendAnimation"
+    end
+    
+    -- Добавляем caption если есть
+    if caption then
+        params.caption = caption
+    end
+    
+    -- Открываем файл
+    local file = io.open(file_path, "rb")
+    if not file then
+        return nil, "File not found"
+    end
+    
+    -- Читаем содержимое файла
+    local content = file:read("*all")
+    file:close()
+    
+    -- Добавляем файл в параметры
+    params[method:match("send(%w+)"):lower()] = content
+    
+    return api.request(method, params)
+end
+
+-- Send photo
+function api.send_photo(chat_id, file_path, caption)
+    local params = {
+        chat_id = chat_id
+    }
+    
+    if caption then
+        params.caption = caption
+    end
+    
+    -- Открываем файл
+    local file = io.open(file_path, "rb")
+    if not file then
+        return nil, "File not found"
+    end
+    
+    -- Читаем содержимое файла
+    local content = file:read("*all")
+    file:close()
+    
+    -- Создаем multipart/form-data запрос
+    local boundary = "----WebKitFormBoundary" .. os.time()
+    local body = ""
+    
+    -- Добавляем параметры
+    for k, v in pairs(params) do
+        body = body .. "--" .. boundary .. "\r\n"
+        body = body .. "Content-Disposition: form-data; name=\"" .. k .. "\"\r\n\r\n"
+        body = body .. v .. "\r\n"
+    end
+    
+    -- Добавляем файл
+    body = body .. "--" .. boundary .. "\r\n"
+    body = body .. "Content-Disposition: form-data; name=\"photo\"; filename=\"" .. file_path:match("([^/\\]+)$") .. "\"\r\n"
+    body = body .. "Content-Type: image/jpeg\r\n\r\n"
+    body = body .. content .. "\r\n"
+    body = body .. "--" .. boundary .. "--\r\n"
+    
+    -- Отправляем запрос
+    local url = api.base_url .. api.token .. "/sendPhoto"
+    local response = {}
+    
+    local res, code = http.request{
+        url = url,
+        method = "POST",
+        headers = {
+            ["Content-Type"] = "multipart/form-data; boundary=" .. boundary,
+            ["Content-Length"] = #body
+        },
+        source = ltn12.source.string(body),
+        sink = ltn12.sink.table(response)
+    }
+    
+    if code == 200 then
+        return json.decode(table.concat(response))
+    end
+    return nil, "Failed to send photo"
+end
+
+-- Send video
+function api.send_video(chat_id, file_path, caption)
+    local params = {
+        chat_id = chat_id
+    }
+    
+    if caption then
+        params.caption = caption
+    end
+    
+    local file = io.open(file_path, "rb")
+    if not file then
+        return nil, "File not found"
+    end
+    
+    local content = file:read("*all")
+    file:close()
+    
+    params.video = content
+    return api.request("sendVideo", params)
+end
+
+-- Send audio
+function api.send_audio(chat_id, file_path, caption)
+    local params = {
+        chat_id = chat_id
+    }
+    
+    if caption then
+        params.caption = caption
+    end
+    
+    local file = io.open(file_path, "rb")
+    if not file then
+        return nil, "File not found"
+    end
+    
+    local content = file:read("*all")
+    file:close()
+    
+    params.audio = content
+    return api.request("sendAudio", params)
+end
+
+-- Send document
+function api.send_document(chat_id, file_path, caption)
+    local params = {
+        chat_id = chat_id
+    }
+    
+    if caption then
+        params.caption = caption
+    end
+    
+    local file = io.open(file_path, "rb")
+    if not file then
+        return nil, "File not found"
+    end
+    
+    local content = file:read("*all")
+    file:close()
+    
+    params.document = content
+    return api.request("sendDocument", params)
+end
+
+-- Send animation (GIF)
+function api.send_animation(chat_id, file_path, caption)
+    local params = {
+        chat_id = chat_id
+    }
+    
+    if caption then
+        params.caption = caption
+    end
+    
+    local file = io.open(file_path, "rb")
+    if not file then
+        return nil, "File not found"
+    end
+    
+    local content = file:read("*all")
+    file:close()
+    
+    params.animation = content
+    return api.request("sendAnimation", params)
 end
 
 -- Run bot
