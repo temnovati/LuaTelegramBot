@@ -70,9 +70,9 @@ api.run()
 - `api.send_message(chat_id, text)` - Send a message
 - `api.editmessage(chat_id, message_id, new_text)` - Edit a message
 - `api.removemessage(chat_id, message_id)` - Delete a message
-- `api.send_photo(chat_id, file_path, caption)` - Send a photo
-- `api.send_video(chat_id, file_path, caption)` - Send a video
-- `api.send_audio(chat_id, file_path, caption)` - Send audio
+- `api.send_photo(chat_id, file_path, caption)` - Send a photo ( png, jpg, jpeg )
+- `api.send_video(chat_id, file_path, caption)` - Send a video ( mp4, mov )
+- `api.send_audio(chat_id, file_path, caption)` - Send audio ( mp3, ogg, wav )
 - `api.send_document(chat_id, file_path, caption)` - Send a document
 - `api.send_animation(chat_id, file_path, caption)` - Send a GIF
 
