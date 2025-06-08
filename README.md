@@ -68,17 +68,6 @@ api.run()
   - `allmessages` - Table of all messages with message_id as key
   - `allusers` - Table of all users with user_id as key
 
-## Example Bot
-
-Check out the `bot.lua` file for a complete example of a bot with:
-- Multiple commands
-- Different types of buttons (URL and callback)
-- Popup notifications
-- Message editing
-- File sending
-- Chat history tracking
-- User tracking
-
 ## Running the Example
 
 1. Clone the repository
